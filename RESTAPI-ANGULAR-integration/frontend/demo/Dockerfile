@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 #stage 2 serving
-FROM nginx:1.2-alpine
+FROM nginx:1.25-alpine
 
 WORKDIR /app
 
