@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   frontend:
-    build: ./
+    build: ./frontend/demo
     container_name: frontend
     networks:
       - app-network
@@ -11,7 +11,7 @@ services:
     depends_on:
       - backend
   backend:
-    build: ./
+    build: ./crud-api-backend
     container_name: backend
     environment:
       DATABASE_NAME: demo
