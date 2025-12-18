@@ -1,0 +1,37 @@
+version: '3.2'
+
+services:
+  frontend:
+    build: ./
+    networks:
+      - app-network
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+  backend:
+    build: ./
+    environment:
+      DATABASE_NAME: demo
+      DATABASE_USER: govind
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: govind123
+    depends_on:
+      - db
+    networks:
+      - app-network
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: govind
+      MYSQL_PASSWORD: govind123
+      MYSQL_DATABASE: demo
+    volumes:
+      - db-volume:/var/lib/mysql
+    networks:
+      - app-network
+volumes:
+  db-volume:
+networks:
+  app-network:
