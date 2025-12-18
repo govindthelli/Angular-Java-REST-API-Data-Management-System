@@ -3,6 +3,7 @@ version: '3.2'
 services:
   frontend:
     build: ./
+    container_name: frontend
     networks:
       - app-network
     ports:
@@ -11,6 +12,7 @@ services:
       - backend
   backend:
     build: ./
+    container_name: backend
     environment:
       DATABASE_NAME: demo
       DATABASE_USER: govind
@@ -22,6 +24,7 @@ services:
       - app-network
   db:
     image: mysql:8.0
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_USER: govind
