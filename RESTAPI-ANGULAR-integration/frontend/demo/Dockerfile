@@ -3,7 +3,7 @@ FROM node:18-slim AS build
 
 WORKDIR /app
 
-COPY pom.xml ./
+COPY package*.json ./
 
 RUN npm install 
 
