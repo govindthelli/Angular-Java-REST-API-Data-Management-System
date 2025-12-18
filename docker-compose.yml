@@ -1,40 +1,47 @@
-version: '3.2'
+version: "3.2"
 
 services:
-  frontend:
-    build: ./RESTAPI-ANGULAR-integration/frontend/demo
-    container_name: frontend
-    networks:
-      - app-network
-    ports:
-      - "4200:80"
-    depends_on:
-      - backend
-  backend:
-    build: ./RESTAPI-ANGULAR-integration/crud-api-backend
-    container_name: backend
-    environment:
-      DATABASE_NAME: demo
-      DATABASE_USER: govind
-      DATABASE_HOST: db
-      DATABASE_PASSWORD: govind123
-    depends_on:
-      - db
-    networks:
-      - app-network
   db:
     image: mysql:8.0
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: demo
       MYSQL_USER: govind
       MYSQL_PASSWORD: govind123
-      MYSQL_DATABASE: demo
     volumes:
       - db-volume:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./RESTAPI-ANGULAR-integration/crud-api-backend
+    container_name: backend
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./RESTAPI-ANGULAR-integration/frontend/demo
+    container_name: frontend
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    ports:
+      - "4200:80"
+
 volumes:
   db-volume:
+
 networks:
   app-network:
