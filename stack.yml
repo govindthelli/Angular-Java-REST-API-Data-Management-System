@@ -1,0 +1,68 @@
+version: "3.2"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: demo
+      MYSQL_USER: govind
+      MYSQL_PASSWORD: govind123
+    volumes:
+      - db-volume:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+
+  backend:
+    #build: ./RESTAPI-ANGULAR-integration/crud-api-backend
+    image: govindthelli/recharge:v1
+    container_name: backend
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == worker
+
+  frontend:
+    #build: ./RESTAPI-ANGULAR-integration/frontend/demo
+    image: govindthelli/recharge:v2
+    container_name: frontend
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    ports:
+      - "4200:80"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db-volume:
+
+networks:
+  app-network:
+    driver: overlay
