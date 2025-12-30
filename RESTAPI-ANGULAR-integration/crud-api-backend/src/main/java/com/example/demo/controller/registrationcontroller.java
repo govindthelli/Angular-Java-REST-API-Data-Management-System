@@ -19,7 +19,11 @@ import com.example.demo.services.registrationservice;
 
 @RestController
 @RequestMapping("/api/v1")
-@CrossOrigin("http://54.159.141.20:4200","http://35.174.116.41:4200")
+@CrossOrigin(origins = {
+    "http://54.159.141.20:4200",
+    "http://35.174.116.41:4200"
+})
+
 
 public class registrationcontroller {
 
@@ -67,6 +71,7 @@ public class registrationcontroller {
 		return service.update(reg);
 	}
 }
+
 
 
 
