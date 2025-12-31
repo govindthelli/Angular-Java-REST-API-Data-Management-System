@@ -1,0 +1,86 @@
+pipeline {
+    agent { label 'ssh-agent-1'}
+
+
+
+    environment {
+        IMAGE_FRONT = "govindthelli/recharge:frontend"
+        IMAGE_BACK = "govindthelli/recharge:backend"
+        REMOTE_USER="ubuntu"
+        REMOTE_IP="18.206.155.136"
+        REMOTE_FOLDER="/home/ubuntu/app"
+    }
+
+    stages {
+        stage('docker-login') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker-creds',
+                        usernameVariable: 'Docker_User',
+                        passwordVariable: 'Docker_Pass'
+                        
+                        )
+                    ])
+                    {
+                         sh '''
+                                  echo "$Docker_Pass" | docker login -u "$Docker_User" --password-stdin
+                             '''
+                    }
+            }
+        }
+        stage('build images') {
+            steps {
+                sh '''
+                    docker compose build --no-cache
+                '''
+            }
+        }
+        stage ('push-images-to-docker-hub') {
+            steps {
+                sh '''
+                    docker push $IMAGE_FRONT
+                    docker push $IMAGE_BACK
+                '''
+            }
+        }
+        stage('create fodler and copy docker compose') {
+            steps {
+                sshagent(['ssh-creds']) {
+                    sh '''
+                        ssh -o strictHostKeyChecking=no $REMOTE_USER@$REMOTE_IP "mkdir -p $REMOTE_FOLDER;"
+                        scp -o strictHostKeyChecking=no docker-compose.yml $REMOTE_USER@$REMOTE_IP:$REMOTE_FOLDER
+
+                    '''
+                }
+            }
+
+        }
+        stage('pull images and up containers') {
+            steps {
+                sshagent(['ssh-creds']) {
+                    sh '''
+                        ssh -o strictHostKeyChecking=no $REMOTE_USER@$REMOTE_IP "
+                            cd $REMOTE_FOLDER;
+                            docker compose pull;
+                            docker compose up -d --force-recreate;
+                        "
+                   
+                    '''
+                }
+                
+            }
+        }
+    }
+    post {
+        always {
+            sh 'docker logout'
+        }
+        success {
+            echo "Deployment Successfull"
+        }
+        failure {
+            echo "Deployment Failed"
+        }
+    }
+}
