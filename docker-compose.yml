@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 10
   backend:
-    build: ./RESTAPI-ANGULAR-integration\crud-api-backend\Dockerfile
+    build: ./RESTAPI-ANGULAR-integration/crud-api-backend
     container_name: backend
     networks:
       - app-network
@@ -25,7 +25,7 @@ services:
       db:
         condition: service_healthy
   frontend:
-    build: ./RESTAPI-ANGULAR-integration\frontend\demo\Dockerfile
+    build: ./RESTAPI-ANGULAR-integration/frontend/demo
     container_name: frontend
     ports:
       - "4200:80"
