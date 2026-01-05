@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY pom.xml ./
 
-RUN mvn dependency:go-offile -B
+RUN mvn dependency:go-offline -B
 
 COPY . .
 
