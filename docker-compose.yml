@@ -28,7 +28,7 @@ services:
     build: ./RESTAPI-ANGULAR-integration\frontend\demo\Dockerfile
     container_name: frontend
     ports:
-      - "3000:80"
+      - "4200:80"
     networks:
       - app-network
     depends_on:
